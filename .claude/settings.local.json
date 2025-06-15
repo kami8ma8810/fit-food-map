@@ -37,7 +37,16 @@
       "Bash(git add utils/accessibility.ts utils/__tests__/accessibility.test.ts)",
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: add WCAG 2.1 AA accessibility utilities\n\n- Implement color contrast ratio calculation\n- Add WCAG AA/AAA compliance checkers\n- Create accessibility props builders for common UI elements\n- Include touch target size validation (44px minimum)\n- Provide WCAG-compliant color palette\n- Add comprehensive test coverage (15 tests)\n\nEnsures app meets accessibility standards for inclusive design.\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git add .jest-cache/ .claude/)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nchore: add development environment files\n\n- Include Jest cache directory for faster test runs\n- Add Claude Code configuration files\n- Set up development workspace\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nchore: add development environment files\n\n- Include Jest cache directory for faster test runs\n- Add Claude Code configuration files\n- Set up development workspace\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git reset --soft HEAD~1)",
+      "Bash(git rm --cached -r .jest-cache)",
+      "Bash(git add .gitignore)",
+      "Bash(git commit -m \"$(cat <<'EOF'\nchore: remove Jest cache from version control\n\n- Remove .jest-cache directory from git tracking\n- Add .jest-cache to .gitignore to prevent future commits\n- Clean up repository by excluding build artifacts\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(npm install expo-router)",
+      "Bash(mkdir -p \"app/(tabs)\" app/restaurant app/menu components/Map components/Restaurant components/Common)",
+      "Bash(rm /Users/h.kamiyama/GitHub/fit-food-map/App.tsx)",
+      "Bash(mkdir -p hooks)",
+      "Bash(git add .)"
     ],
     "deny": []
   }
