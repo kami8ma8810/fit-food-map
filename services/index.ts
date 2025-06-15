@@ -1,0 +1,1 @@
+export { RestaurantService } from './restaurantService';

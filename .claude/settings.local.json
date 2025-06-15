@@ -1,5 +1,6 @@
 {
   "permissions": {
+    "defaultBashPermission": "allow",
     "allow": [
       "Bash(npx create-expo-app@latest . --template)",
       "Bash(npx create-expo-app@latest temp-project --template)",
@@ -46,7 +47,9 @@
       "Bash(mkdir -p \"app/(tabs)\" app/restaurant app/menu components/Map components/Restaurant components/Common)",
       "Bash(rm /Users/h.kamiyama/GitHub/fit-food-map/App.tsx)",
       "Bash(mkdir -p hooks)",
-      "Bash(git add .)"
+      "Bash(git add .)",
+      "Bash(git commit -m \"$(cat <<'EOF'\nfeat: implement navigation structure and map functionality\n\n- Set up Expo Router with tab navigation (Map, History, Profile)\n- Implement MapView component with react-native-maps\n- Add location permission handling and current location display\n- Create custom useLocation hook for location management\n- Add restaurant markers with navigation to detail screens\n- Include accessibility labels and hints throughout\n- Update app.json with proper app name and Expo Router config\n\nPhase 1 core functionality now complete with:\n- ✅ Basic navigation structure\n- ✅ Map component implementation  \n- ✅ Location services integration\n- ⏳ Firebase setup (next)\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(mkdir -p services)"
     ],
     "deny": []
   }
