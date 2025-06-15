@@ -191,29 +191,29 @@ fit-food-map/
 ```mermaid
 graph TB
     subgraph "📱 Presentation Layer"
-        A[app/\(tabs\)/index.tsx<br/>メイン画面] --> B[app/restaurant/[id].tsx<br/>レストラン詳細]
-        B --> C[app/menu/[id].tsx<br/>メニュー詳細]
-        A --> D[components/Search/<br/>検索・フィルター]
-        B --> E[components/Restaurant/<br/>レストラン情報]
-        C --> F[components/Nutrition/<br/>栄養情報・PFC]
+        A["app/(tabs)/index.tsx<br/>メイン画面"] --> B["app/restaurant/[id].tsx<br/>レストラン詳細"]
+        B --> C["app/menu/[id].tsx<br/>メニュー詳細"]
+        A --> D["components/Search/<br/>検索・フィルター"]
+        B --> E["components/Restaurant/<br/>レストラン情報"]
+        C --> F["components/Nutrition/<br/>栄養情報・PFC"]
     end
     
     subgraph "🔧 Business Logic Layer"
-        G[hooks/useRestaurants.ts<br/>レストランデータ管理]
-        H[hooks/useLocation.ts<br/>位置情報管理]
-        I[hooks/useMenu.ts<br/>メニューデータ管理]
-        J[utils/nutritionCalculator.ts<br/>栄養計算ロジック]
+        G["hooks/useRestaurants.ts<br/>レストランデータ管理"]
+        H["hooks/useLocation.ts<br/>位置情報管理"]
+        I["hooks/useMenu.ts<br/>メニューデータ管理"]
+        J["utils/nutritionCalculator.ts<br/>栄養計算ロジック"]
     end
     
     subgraph "📊 Data Layer"
-        K[services/mockRestaurantService.ts<br/>モックデータサービス]
-        L[services/restaurantService.ts<br/>Firebase サービス\(準備済み\)]
-        M[data/sampleRestaurants.ts<br/>サンプルデータ]
+        K["services/mockRestaurantService.ts<br/>モックデータサービス"]
+        L["services/restaurantService.ts<br/>Firebase サービス(準備済み)"]
+        M["data/sampleRestaurants.ts<br/>サンプルデータ"]
     end
     
     subgraph "🎯 Cross-cutting Concerns"
-        N[utils/accessibility.ts<br/>アクセシビリティ]
-        O[types/index.ts<br/>型定義]
+        N["utils/accessibility.ts<br/>アクセシビリティ"]
+        O["types/index.ts<br/>型定義"]
     end
     
     A --> G
