@@ -1,64 +1,110 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { useMenu } from '../../hooks';
+import { PFCBars, NutritionTable } from '../../components/Nutrition';
 
 export default function MenuDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { menu, loading, error } = useMenu(id);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>メニュー情報を読み込み中...</Text>
+      </View>
+    );
+  }
+
+  if (error || !menu) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>{error || 'メニューが見つかりませんでした'}</Text>
+      </View>
+    );
+  }
+
+  const getConfidenceText = (confidence: number) => {
+    if (confidence >= 0.9) return '信頼度: 高';
+    if (confidence >= 0.7) return '信頼度: 中';
+    return '信頼度: 低';
+  };
+
+  const getDataSourceText = (dataSource: string) => {
+    switch (dataSource) {
+      case 'official': return '公式データ';
+      case 'ai_estimated': return 'AI推定';
+      case 'user_input': return 'ユーザー入力';
+      default: return 'データソース不明';
+    }
+  };
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <Text 
-          style={styles.title}
-          accessibilityRole="header"
-          accessibilityLabel={`メニューID ${id} の詳細画面`}
-        >
-          メニュー詳細（ID: {id}）
-        </Text>
-        
-        <View style={styles.placeholder}>
-          <Ionicons 
-            name="nutrition-outline" 
-            size={64} 
-            color="#6b7280"
-            accessibilityLabel="栄養情報アイコン"
-          />
+        <View style={styles.menuHeader}>
           <Text 
-            style={styles.placeholderText}
-            accessibilityLabel="メニュー詳細機能は今後実装予定です"
+            style={styles.menuName}
+            accessibilityRole="header"
+            accessibilityLabel={`メニュー名: ${menu.name}`}
           >
-            メニュー詳細機能（実装予定）
+            {menu.name}
           </Text>
-          <Text style={styles.descriptionText}>
-            今後のアップデートで以下の情報を表示予定：
-          </Text>
-          <Text style={styles.featureText}>• メニュー名・価格・画像</Text>
-          <Text style={styles.featureText}>• 詳細な栄養情報（PFC・カロリー）</Text>
-          <Text style={styles.featureText}>• アレルギー情報</Text>
-          <Text style={styles.featureText}>• 栄養価の可視化グラフ</Text>
-          <Text style={styles.featureText}>• 類似メニューの提案</Text>
-          <Text style={styles.featureText}>• 食事履歴への追加</Text>
+          <Text style={styles.menuPrice}>¥{menu.price}</Text>
+          
+          <View style={styles.metaInfo}>
+            <Text style={styles.dataSource}>
+              {getDataSourceText(menu.dataSource)}
+            </Text>
+            <Text style={styles.confidence}>
+              {getConfidenceText(menu.confidence)}
+            </Text>
+          </View>
+
+          {menu.tags && menu.tags.length > 0 && (
+            <View style={styles.tagsContainer}>
+              {menu.tags.map((tag, index) => (
+                <View key={index} style={styles.tag}>
+                  <Text style={styles.tagText}>{tag}</Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
 
-        <View style={styles.nutritionPreview}>
-          <Text style={styles.cardTitle}>栄養価プレビュー</Text>
-          <View style={styles.nutritionRow}>
-            <Text style={styles.nutritionLabel}>カロリー</Text>
-            <Text style={styles.nutritionValue}>750 kcal</Text>
+        <PFCBars nutrition={menu.nutrition} />
+        
+        <NutritionTable nutrition={menu.nutrition} />
+
+        <View style={styles.healthInsights}>
+          <Text style={styles.insightsTitle}>健康指標</Text>
+          
+          <View style={styles.insightRow}>
+            <Text style={styles.insightLabel}>タンパク質含有率</Text>
+            <Text style={styles.insightValue}>
+              {((menu.nutrition.protein * 4 / menu.nutrition.calories) * 100).toFixed(1)}%
+            </Text>
           </View>
-          <View style={styles.nutritionRow}>
-            <Text style={styles.nutritionLabel}>タンパク質</Text>
-            <Text style={styles.nutritionValue}>35.5 g</Text>
+          
+          <View style={styles.insightRow}>
+            <Text style={styles.insightLabel}>100gあたりタンパク質</Text>
+            <Text style={styles.insightValue}>
+              推定 {Math.round(menu.nutrition.protein * 100 / (menu.nutrition.calories / 2.5))}g
+            </Text>
           </View>
-          <View style={styles.nutritionRow}>
-            <Text style={styles.nutritionLabel}>脂質</Text>
-            <Text style={styles.nutritionValue}>28.2 g</Text>
+          
+          <View style={styles.insightRow}>
+            <Text style={styles.insightLabel}>ナトリウム評価</Text>
+            <Text style={[
+              styles.insightValue,
+              menu.nutrition.sodium > 2000 ? styles.highSodium :
+              menu.nutrition.sodium > 1000 ? styles.mediumSodium : styles.lowSodium
+            ]}>
+              {menu.nutrition.sodium > 2000 ? '高' :
+               menu.nutrition.sodium > 1000 ? '中' : '低'}
+            </Text>
           </View>
-          <View style={styles.nutritionRow}>
-            <Text style={styles.nutritionLabel}>炭水化物</Text>
-            <Text style={styles.nutritionValue}>82.4 g</Text>
-          </View>
-          <Text style={styles.noteText}>※ サンプルデータです</Text>
         </View>
       </ScrollView>
     </View>
@@ -70,58 +116,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8fafc',
   },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#dc2626',
+    textAlign: 'center',
+    margin: 16,
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: 16,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 24,
-    color: '#1f2937',
-  },
-  placeholder: {
-    backgroundColor: '#ffffff',
-    padding: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  placeholderText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#374151',
-    textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  descriptionText: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  featureText: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 4,
-    paddingLeft: 8,
-  },
-  nutritionPreview: {
+  menuHeader: {
     backgroundColor: '#ffffff',
     padding: 20,
     borderRadius: 12,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -131,14 +151,75 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  cardTitle: {
-    fontSize: 16,
+  menuName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  menuPrice: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#059669',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  metaInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  dataSource: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  confidence: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  tagText: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  healthInsights: {
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  insightsTitle: {
+    fontSize: 18,
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 16,
     textAlign: 'center',
   },
-  nutritionRow: {
+  insightRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -146,21 +227,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
   },
-  nutritionLabel: {
+  insightLabel: {
     fontSize: 14,
     color: '#374151',
     fontWeight: '500',
   },
-  nutritionValue: {
+  insightValue: {
     fontSize: 14,
     color: '#1f2937',
     fontWeight: '600',
   },
-  noteText: {
-    fontSize: 12,
-    color: '#9ca3af',
-    textAlign: 'center',
-    marginTop: 12,
-    fontStyle: 'italic',
+  lowSodium: {
+    color: '#10b981',
+  },
+  mediumSodium: {
+    color: '#f59e0b',
+  },
+  highSodium: {
+    color: '#ef4444',
   },
 });

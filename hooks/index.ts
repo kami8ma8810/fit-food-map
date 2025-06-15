@@ -6,3 +6,6 @@ export type { UseRestaurantsResult } from './useRestaurants';
 
 export { useRestaurant } from './useRestaurant';
 export type { UseRestaurantResult } from './useRestaurant';
+
+export { useMenu } from './useMenu';
+export type { UseMenuResult } from './useMenu';
