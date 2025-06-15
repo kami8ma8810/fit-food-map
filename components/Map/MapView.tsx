@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, Dimensions } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import { Map, Marker } from 'expo-maps';
 import { useLocation } from '../../hooks';
 
 const { width, height } = Dimensions.get('window');
@@ -17,6 +17,13 @@ interface Restaurant {
 interface MapComponentProps {
   restaurants?: Restaurant[];
   onMarkerPress?: (restaurant: Restaurant) => void;
+}
+
+interface Region {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
 }
 
 const DEFAULT_REGION: Region = {
@@ -61,33 +68,35 @@ export default function MapComponent({ restaurants = [], onMarkerPress }: MapCom
   if (loading) {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
-        {/* Loading state - in a real app, you'd add a loading spinner */}
+        {/* Loading state */}
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <MapView
+      <Map
         style={styles.map}
         region={region}
         onRegionChangeComplete={setRegion}
         showsUserLocation={true}
-        showsMyLocationButton={true}
         accessibilityLabel="地図表示"
         accessibilityHint="現在地周辺の飲食店を表示しています"
       >
         {restaurants.map((restaurant) => (
           <Marker
             key={restaurant.id}
-            coordinate={restaurant.coordinate}
+            coordinate={{
+              latitude: restaurant.coordinate.latitude,
+              longitude: restaurant.coordinate.longitude,
+            }}
             title={restaurant.name}
             onPress={() => handleMarkerPress(restaurant)}
             accessibilityLabel={`店舗: ${restaurant.name}`}
             accessibilityHint="タップして店舗詳細を表示"
           />
         ))}
-      </MapView>
+      </Map>
     </View>
   );
 }

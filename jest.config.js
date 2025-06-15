@@ -50,5 +50,6 @@ module.exports = {
     '^react-native$': '<rootDir>/mocks/react-native.js',
     '^react-native-maps$': '<rootDir>/mocks/react-native-maps.js',
     '^expo-location$': '<rootDir>/mocks/expo-location.js',
+    '^expo-maps$': '<rootDir>/mocks/expo-maps.js',
   }
 };
