@@ -44,13 +44,22 @@ export class MockRestaurantService {
     filters?: {
       highProtein?: boolean;
       maxDistance?: number;
+      priceRange?: {
+        min: number;
+        max: number;
+      };
+      categories?: string[];
     }
   ): Promise<Restaurant[]> {
     await new Promise(resolve => setTimeout(resolve, 600));
     
-    let restaurants = sampleRestaurants.filter(restaurant => 
-      restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let restaurants = sampleRestaurants;
+    
+    if (searchTerm.trim()) {
+      restaurants = restaurants.filter(restaurant => 
+        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
     
     if (lat && lng && filters?.maxDistance) {
       restaurants = restaurants.filter(restaurant => {
@@ -63,16 +72,81 @@ export class MockRestaurantService {
       });
     }
     
-    if (filters?.highProtein && lat && lng) {
-      const restaurantIds = restaurants.map(r => r.id);
-      const highProteinMenus = sampleMenus.filter(menu => 
-        restaurantIds.includes(menu.restaurantId) && menu.nutrition.protein >= 25
+    const restaurantIds = restaurants.map(r => r.id);
+    let validMenus = sampleMenus.filter(menu => restaurantIds.includes(menu.restaurantId));
+    
+    if (filters?.highProtein) {
+      validMenus = validMenus.filter(menu => menu.nutrition.protein >= 25);
+    }
+    
+    if (filters?.priceRange) {
+      const { min, max } = filters.priceRange;
+      validMenus = validMenus.filter(menu => 
+        menu.price >= min && menu.price <= max
       );
-      const highProteinRestaurantIds = [...new Set(highProteinMenus.map(m => m.restaurantId))];
-      restaurants = restaurants.filter(r => highProteinRestaurantIds.includes(r.id));
+    }
+    
+    if (filters?.categories && filters.categories.length > 0) {
+      validMenus = validMenus.filter(menu =>
+        menu.tags.some(tag => 
+          filters.categories!.some(category => 
+            tag.toLowerCase().includes(category.toLowerCase()) ||
+            category.toLowerCase().includes(tag.toLowerCase())
+          )
+        )
+      );
+    }
+    
+    if (searchTerm.trim()) {
+      const menuMatchRestaurants = validMenus.filter(menu =>
+        menu.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ).map(menu => menu.restaurantId);
+      
+      const allMatchingRestaurantIds = new Set([
+        ...restaurants.map(r => r.id),
+        ...menuMatchRestaurants
+      ]);
+      
+      restaurants = sampleRestaurants.filter(r => allMatchingRestaurantIds.has(r.id));
+    }
+    
+    const validRestaurantIds = [...new Set(validMenus.map(m => m.restaurantId))];
+    restaurants = restaurants.filter(r => validRestaurantIds.includes(r.id));
+    
+    if (lat && lng) {
+      restaurants.sort((a, b) => {
+        const distanceA = this.calculateDistance(lat, lng, a.location.lat, a.location.lng);
+        const distanceB = this.calculateDistance(lat, lng, b.location.lat, b.location.lng);
+        return distanceA - distanceB;
+      });
     }
     
     return restaurants;
+  }
+
+  static async getHighProteinMenus(
+    lat?: number,
+    lng?: number,
+    minProtein: number = 25
+  ): Promise<Array<{ menu: Menu; restaurant: Restaurant }>> {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    const highProteinMenus = sampleMenus.filter(menu => menu.nutrition.protein >= minProtein);
+    
+    const results = highProteinMenus.map(menu => {
+      const restaurant = sampleRestaurants.find(r => r.id === menu.restaurantId);
+      return { menu, restaurant: restaurant! };
+    }).filter(result => result.restaurant);
+    
+    if (lat && lng) {
+      results.sort((a, b) => {
+        const distanceA = this.calculateDistance(lat, lng, a.restaurant.location.lat, a.restaurant.location.lng);
+        const distanceB = this.calculateDistance(lat, lng, b.restaurant.location.lat, b.restaurant.location.lng);
+        return distanceA - distanceB;
+      });
+    }
+    
+    return results;
   }
 
   private static calculateDistance(

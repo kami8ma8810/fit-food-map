@@ -11,6 +11,11 @@ export interface UseRestaurantsResult {
   searchRestaurants: (searchTerm: string, filters?: {
     highProtein?: boolean;
     maxDistance?: number;
+    priceRange?: {
+      min: number;
+      max: number;
+    };
+    categories?: string[];
   }) => Promise<void>;
 }
 
@@ -50,6 +55,11 @@ export function useRestaurants(radiusKm: number = 2): UseRestaurantsResult {
     filters?: {
       highProtein?: boolean;
       maxDistance?: number;
+      priceRange?: {
+        min: number;
+        max: number;
+      };
+      categories?: string[];
     }
   ) => {
     if (!location) {
