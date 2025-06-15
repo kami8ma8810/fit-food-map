@@ -1,36 +1,46 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { MapView } from '../../components/Map';
-
-const sampleRestaurants = [
-  {
-    id: '1',
-    name: 'サンプル定食屋',
-    coordinate: {
-      latitude: 35.6762,
-      longitude: 139.6503,
-    },
-  },
-  {
-    id: '2', 
-    name: 'ヘルシーカフェ',
-    coordinate: {
-      latitude: 35.6782,
-      longitude: 139.6523,
-    },
-  },
-];
+import { useRestaurants } from '../../hooks';
 
 export default function MapScreen() {
-  const handleMarkerPress = (restaurant: typeof sampleRestaurants[0]) => {
+  const { restaurants, loading, error } = useRestaurants(5);
+
+  const handleMarkerPress = (restaurant: { id: string; name: string; coordinate: { latitude: number; longitude: number } }) => {
     router.push(`/restaurant/${restaurant.id}`);
   };
+
+  const mapRestaurants = restaurants.map(restaurant => ({
+    id: restaurant.id,
+    name: restaurant.name,
+    coordinate: {
+      latitude: restaurant.location.lat,
+      longitude: restaurant.location.lng,
+    },
+  }));
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text style={styles.loadingText}>レストランを検索中...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>エラー: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <MapView 
-        restaurants={sampleRestaurants}
+        restaurants={mapRestaurants}
         onMarkerPress={handleMarkerPress}
       />
     </View>
@@ -40,5 +50,21 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#dc2626',
+    textAlign: 'center',
+    margin: 16,
   },
 });

@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "defaultBashPermission": "allow",
     "allow": [
       "Bash(npx create-expo-app@latest . --template)",
       "Bash(npx create-expo-app@latest temp-project --template)",
@@ -49,8 +48,28 @@
       "Bash(mkdir -p hooks)",
       "Bash(git add .)",
       "Bash(git commit -m \"$(cat <<'EOF'\nfeat: implement navigation structure and map functionality\n\n- Set up Expo Router with tab navigation (Map, History, Profile)\n- Implement MapView component with react-native-maps\n- Add location permission handling and current location display\n- Create custom useLocation hook for location management\n- Add restaurant markers with navigation to detail screens\n- Include accessibility labels and hints throughout\n- Update app.json with proper app name and Expo Router config\n\nPhase 1 core functionality now complete with:\n- ✅ Basic navigation structure\n- ✅ Map component implementation  \n- ✅ Location services integration\n- ⏳ Firebase setup (next)\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(mkdir -p services)"
+      "Bash(mkdir -p services)",
+      "Bash(git commit -m \"$(cat <<'EOF'\nfeat: add Firebase integration and setup documentation\n\n- Create Firebase configuration with environment variables\n- Add RestaurantService for Firestore data operations\n- Include comprehensive Firebase setup guide (FIREBASE_SETUP.md)\n- Set up environment variable management (.env.example)\n- Configure Claude settings for automatic bash permission\n\nFeatures implemented:\n- Firebase config with proper env var handling\n- Restaurant and menu data service layer\n- Location-based restaurant queries\n- Search functionality with distance filtering\n- Complete setup documentation for developers\n\nPhase 1 基盤構築 now complete! ✅\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(claude config list)",
+      "Bash(claude config set --global preferredNotifChannel terminal_bell)",
+      "Bash(claude config get preferredNotifChannel)",
+      "Bash(printf '\\a')",
+      "Bash(afplay /System/Library/Sounds/Ping.aiff)",
+      "Bash(ls /System/Library/Sounds/)",
+      "Bash(afplay /System/Library/Sounds/Glass.aiff)",
+      "Bash(afplay /System/Library/Sounds/Hero.aiff)",
+      "Bash(afplay /System/Library/Sounds/Sosumi.aiff)",
+      "Bash(afplay /System/Library/Sounds/Submarine.aiff)",
+      "Bash(afplay /System/Library/Sounds/Funk.aiff)",
+      "Bash(afplay /System/Library/Sounds/Frog.aiff)",
+      "Bash(afplay /System/Library/Sounds/Purr.aiff)",
+      "Bash(mkdir -p data)",
+      "Bash(notify)",
+      "Bash(source ~/.zshrc)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: implement data layer with sample restaurant data\n\n- Add comprehensive sample data for major chain restaurants\n- Create custom hooks for restaurant and menu data fetching\n- Implement MockRestaurantService for development without Firebase\n- Update map screen to use real data hooks with loading states\n- Enhance restaurant detail screen with full functionality\n- Include restaurant info, hours, and menu listings\n- Add proper error handling and loading indicators\n- Maintain accessibility throughout all screens\n\nFeatures now working:\n- ✅ Real-time restaurant data loading\n- ✅ Location-based restaurant filtering  \n- ✅ Restaurant detail pages with menus\n- ✅ Navigation between map and detail screens\n- ⏳ Menu detail pages (next)\n\nPhase 2 データ基盤 nearly complete! 📊\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
-    "deny": []
+    "deny": [],
+    "defaultBashPermission": "allow"
   }
 }
