@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Restaurant, Menu } from '../types';
-import { MockRestaurantService as RestaurantService } from '../services';
+import { RestaurantService } from '../services';
 
 export interface UseRestaurantResult {
   restaurant: Restaurant | null;

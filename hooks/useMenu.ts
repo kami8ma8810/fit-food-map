@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Menu } from '../types';
-import { sampleMenus } from '../data';
+import { RestaurantService } from '../services';
 
 export interface UseMenuResult {
   menu: Menu | null;
@@ -24,17 +24,15 @@ export function useMenu(menuId: string): UseMenuResult {
       setLoading(true);
       setError(null);
 
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const menuData = await RestaurantService.getMenuById(menuId);
       
-      const foundMenu = sampleMenus.find(m => m.id === menuId);
-      
-      if (!foundMenu) {
+      if (!menuData) {
         setError('メニューが見つかりませんでした');
         setMenu(null);
         return;
       }
 
-      setMenu(foundMenu);
+      setMenu(menuData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'メニュー情報の取得に失敗しました');
       setMenu(null);

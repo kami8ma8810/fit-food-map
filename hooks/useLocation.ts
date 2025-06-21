@@ -43,23 +43,11 @@ export function useLocation(): UseLocationResult {
       setLoading(true);
       setError(null);
 
-      const hasPermission = await requestPermission();
-      if (!hasPermission) {
-        setError({
-          code: 'PERMISSION_DENIED',
-          message: '位置情報の使用が許可されていません',
-        });
-        return;
-      }
-
-      const locationResult = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-
+      // 開発用：東京・渋谷の座標を固定（レストランから少し離れた位置）
       setLocation({
-        latitude: locationResult.coords.latitude,
-        longitude: locationResult.coords.longitude,
-        accuracy: locationResult.coords.accuracy,
+        latitude: 35.6595,  // 渋谷駅付近（レストランから約30m離れた位置）
+        longitude: 139.7010,
+        accuracy: 5,
       });
     } catch (err) {
       setError({

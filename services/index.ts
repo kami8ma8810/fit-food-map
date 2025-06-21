@@ -1,3 +1,3 @@
-// Temporarily disable Firebase service during development
-// export { RestaurantService } from './restaurantService';
+// Firebase service is now active
+export { RestaurantService } from './restaurantService';
 export { MockRestaurantService } from './mockRestaurantService';

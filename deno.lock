@@ -223,6 +223,7 @@
         "npm:react-redux@^9.2.0",
         "npm:react@19.0.0",
         "npm:ts-jest@^29.4.0",
+        "npm:tsx@^4.7.0",
         "npm:typescript@~5.8.3"
       ]
     }

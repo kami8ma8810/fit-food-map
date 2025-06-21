@@ -13,6 +13,24 @@ import { db } from '../config/firebase';
 import { Restaurant, Menu } from '../types';
 
 export class RestaurantService {
+  static async getMenuById(id: string): Promise<Menu | null> {
+    try {
+      const docRef = doc(db, 'menus', id);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        return {
+          id: docSnap.id,
+          ...docSnap.data()
+        } as Menu;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error fetching menu:', error);
+      throw new Error('メニュー詳細の取得に失敗しました');
+    }
+  }
   static async getNearbyRestaurants(
     lat: number, 
     lng: number, 
@@ -94,8 +112,8 @@ export class RestaurantService {
       const menusRef = collection(db, 'menus');
       const q = query(
         menusRef,
-        where('restaurantId', '==', restaurantId),
-        orderBy('createdAt', 'desc')
+        where('restaurantId', '==', restaurantId)
+        // orderByを一時的に削除してインデックスエラーを回避
       );
       
       const querySnapshot = await getDocs(q);
