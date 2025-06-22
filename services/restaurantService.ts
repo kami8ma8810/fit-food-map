@@ -15,7 +15,10 @@ const mockRestaurants: Restaurant[] = [
       sat: '11:00-22:00',
       sun: '11:00-21:00'
     },
+    verified: true,
+    imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format&q=80',
     createdAt: new Date(),
+    updatedAt: new Date(),
     tags: ['ヘルシー', '高タンパク'],
     category: 'healthy'
   },
@@ -32,7 +35,10 @@ const mockRestaurants: Restaurant[] = [
       sat: '10:00-23:00',
       sun: '10:00-22:00'
     },
+    verified: true,
+    imageUrl: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop&auto=format&q=80',
     createdAt: new Date(),
+    updatedAt: new Date(),
     tags: ['プロテイン', 'フィットネス'],
     category: 'fitness'
   },
@@ -49,7 +55,10 @@ const mockRestaurants: Restaurant[] = [
       sat: '9:00-21:00',
       sun: '9:00-20:00'
     },
+    verified: true,
+    imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop&auto=format&q=80',
     createdAt: new Date(),
+    updatedAt: new Date(),
     tags: ['カフェ', 'オーガニック'],
     category: 'cafe'
   }
@@ -157,7 +166,7 @@ export class RestaurantService {
   ): Promise<Restaurant[]> {
     let results = mockRestaurants.filter(restaurant => 
       restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      restaurant.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      (restaurant.tags && restaurant.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
     );
 
     if (lat && lng && filters?.maxDistance) {

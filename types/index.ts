@@ -23,6 +23,7 @@ export interface Nutrition {
   carbs: number;    // g
   fiber?: number;   // g
   sodium?: number;  // mg
+  sugar?: number;   // g
 }
 
 export interface Restaurant {
@@ -32,8 +33,11 @@ export interface Restaurant {
   hours?: Hours;
   chainId?: string;
   verified: boolean;
+  imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
+  tags?: string[];
+  category?: string;
 }
 
 export interface Menu {
