@@ -1,136 +1,149 @@
-import { 
-  collection, 
-  query, 
-  getDocs, 
-  doc, 
-  getDoc,
-  where,
-  orderBy,
-  limit,
-  GeoPoint 
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
 import { Restaurant, Menu } from '../types';
+
+// モックデータ
+const mockRestaurants: Restaurant[] = [
+  {
+    id: 'mock-1',
+    name: 'ヘルシーキッチン渋谷',
+    location: {
+      lat: 35.6581,
+      lng: 139.7414,
+      address: '東京都渋谷区渋谷1-1-1'
+    },
+    hours: {
+      mon: '11:00-22:00',
+      sat: '11:00-22:00',
+      sun: '11:00-21:00'
+    },
+    createdAt: new Date(),
+    tags: ['ヘルシー', '高タンパク'],
+    category: 'healthy'
+  },
+  {
+    id: 'mock-2',
+    name: 'プロテインダイニング新宿',
+    location: {
+      lat: 35.6896,
+      lng: 139.6917,
+      address: '東京都新宿区新宿3-1-1'
+    },
+    hours: {
+      mon: '10:00-23:00',
+      sat: '10:00-23:00',
+      sun: '10:00-22:00'
+    },
+    createdAt: new Date(),
+    tags: ['プロテイン', 'フィットネス'],
+    category: 'fitness'
+  },
+  {
+    id: 'mock-3',
+    name: 'フィットカフェ原宿',
+    location: {
+      lat: 35.6702,
+      lng: 139.7026,
+      address: '東京都渋谷区神宮前1-1-1'
+    },
+    hours: {
+      mon: '9:00-21:00',
+      sat: '9:00-21:00',
+      sun: '9:00-20:00'
+    },
+    createdAt: new Date(),
+    tags: ['カフェ', 'オーガニック'],
+    category: 'cafe'
+  }
+];
+
+const mockMenus: Menu[] = [
+  {
+    id: 'menu-1',
+    restaurantId: 'mock-1',
+    name: 'グリルチキンサラダ',
+    price: 1200,
+    nutrition: {
+      calories: 320,
+      protein: 35,
+      carbs: 15,
+      fat: 12,
+      fiber: 8,
+      sodium: 850,
+      sugar: 6
+    },
+    tags: ['高タンパク', 'グルテンフリー'],
+    dataSource: 'official',
+    confidence: 0.95
+  },
+  {
+    id: 'menu-2',
+    restaurantId: 'mock-1',
+    name: 'サーモンアボカド丼',
+    price: 1400,
+    nutrition: {
+      calories: 420,
+      protein: 28,
+      carbs: 35,
+      fat: 18,
+      fiber: 6,
+      sodium: 920,
+      sugar: 4
+    },
+    tags: ['オメガ3', '良質な脂質'],
+    dataSource: 'official',
+    confidence: 0.92
+  },
+  {
+    id: 'menu-3',
+    restaurantId: 'mock-2',
+    name: 'プロテインボウル',
+    price: 1100,
+    nutrition: {
+      calories: 380,
+      protein: 40,
+      carbs: 25,
+      fat: 14,
+      fiber: 10,
+      sodium: 750,
+      sugar: 8
+    },
+    tags: ['超高タンパク', 'ローカーボ'],
+    dataSource: 'official',
+    confidence: 0.98
+  }
+];
 
 export class RestaurantService {
   static async getMenuById(id: string): Promise<Menu | null> {
-    try {
-      const docRef = doc(db, 'menus', id);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        return {
-          id: docSnap.id,
-          ...docSnap.data()
-        } as Menu;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error fetching menu:', error);
-      throw new Error('メニュー詳細の取得に失敗しました');
-    }
+    // モックデータから検索
+    const menu = mockMenus.find(m => m.id === id);
+    return menu || null;
   }
+
   static async getNearbyRestaurants(
     lat: number, 
     lng: number, 
     radiusKm: number = 2
   ): Promise<Restaurant[]> {
-    try {
-      const restaurantsRef = collection(db, 'restaurants');
-      const q = query(
-        restaurantsRef,
-        orderBy('createdAt', 'desc'),
-        limit(50)
+    // モックデータをフィルタリング（距離計算）
+    return mockRestaurants.filter(restaurant => {
+      const distance = this.calculateDistance(
+        lat, lng,
+        restaurant.location.lat,
+        restaurant.location.lng
       );
-      
-      const querySnapshot = await getDocs(q);
-      const restaurants: Restaurant[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        
-        if (data.location && data.location instanceof GeoPoint) {
-          const distance = this.calculateDistance(
-            lat, lng,
-            data.location.latitude,
-            data.location.longitude
-          );
-          
-          if (distance <= radiusKm) {
-            restaurants.push({
-              id: doc.id,
-              ...data,
-              location: {
-                lat: data.location.latitude,
-                lng: data.location.longitude,
-                address: data.location.address || '',
-              }
-            } as Restaurant);
-          }
-        }
-      });
-      
-      return restaurants.sort((a, b) => {
-        const distanceA = this.calculateDistance(lat, lng, a.location.lat, a.location.lng);
-        const distanceB = this.calculateDistance(lat, lng, b.location.lat, b.location.lng);
-        return distanceA - distanceB;
-      });
-    } catch (error) {
-      console.error('Error fetching nearby restaurants:', error);
-      throw new Error('レストラン情報の取得に失敗しました');
-    }
+      return distance <= radiusKm;
+    });
   }
 
   static async getRestaurantById(id: string): Promise<Restaurant | null> {
-    try {
-      const docRef = doc(db, 'restaurants', id);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          ...data,
-          location: {
-            lat: data.location.latitude,
-            lng: data.location.longitude,
-            address: data.location.address || '',
-          }
-        } as Restaurant;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error fetching restaurant:', error);
-      throw new Error('レストラン詳細の取得に失敗しました');
-    }
+    // モックデータから検索
+    const restaurant = mockRestaurants.find(r => r.id === id);
+    return restaurant || null;
   }
 
   static async getMenusByRestaurantId(restaurantId: string): Promise<Menu[]> {
-    try {
-      const menusRef = collection(db, 'menus');
-      const q = query(
-        menusRef,
-        where('restaurantId', '==', restaurantId)
-        // orderByを一時的に削除してインデックスエラーを回避
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const menus: Menu[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        menus.push({
-          id: doc.id,
-          ...doc.data()
-        } as Menu);
-      });
-      
-      return menus;
-    } catch (error) {
-      console.error('Error fetching menus:', error);
-      throw new Error('メニュー情報の取得に失敗しました');
-    }
+    // モックデータから該当レストランのメニューを返す
+    return mockMenus.filter(menu => menu.restaurantId === restaurantId);
   }
 
   static async searchRestaurants(
@@ -142,49 +155,23 @@ export class RestaurantService {
       maxDistance?: number;
     }
   ): Promise<Restaurant[]> {
-    try {
-      const restaurantsRef = collection(db, 'restaurants');
-      let q = query(restaurantsRef, limit(50));
-      
-      const querySnapshot = await getDocs(q);
-      let restaurants: Restaurant[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        
-        if (data.location && data.location instanceof GeoPoint) {
-          restaurants.push({
-            id: doc.id,
-            ...data,
-            location: {
-              lat: data.location.latitude,
-              lng: data.location.longitude,
-              address: data.location.address || '',
-            }
-          } as Restaurant);
-        }
+    let results = mockRestaurants.filter(restaurant => 
+      restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      restaurant.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    if (lat && lng && filters?.maxDistance) {
+      results = results.filter(restaurant => {
+        const distance = this.calculateDistance(
+          lat, lng,
+          restaurant.location.lat,
+          restaurant.location.lng
+        );
+        return distance <= filters.maxDistance!;
       });
-      
-      restaurants = restaurants.filter(restaurant => 
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      
-      if (lat && lng && filters?.maxDistance) {
-        restaurants = restaurants.filter(restaurant => {
-          const distance = this.calculateDistance(
-            lat, lng,
-            restaurant.location.lat,
-            restaurant.location.lng
-          );
-          return distance <= filters.maxDistance!;
-        });
-      }
-      
-      return restaurants;
-    } catch (error) {
-      console.error('Error searching restaurants:', error);
-      throw new Error('レストラン検索に失敗しました');
     }
+
+    return results;
   }
 
   private static calculateDistance(
@@ -193,7 +180,7 @@ export class RestaurantService {
     lat2: number, 
     lng2: number
   ): number {
-    const R = 6371;
+    const R = 6371; // 地球の半径（km）
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
     const a = 

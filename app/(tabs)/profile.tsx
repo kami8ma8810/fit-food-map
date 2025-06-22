@@ -1,6 +1,30 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function ProfileScreen() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'ログアウト',
+      'ログアウトしますか？',
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        { 
+          text: 'ログアウト', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('エラー', 'ログアウトに失敗しました');
+            }
+          }
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -11,21 +35,34 @@ export default function ProfileScreen() {
         >
           プロフィール
         </Text>
-        <View style={styles.placeholder}>
-          <Text 
-            style={styles.placeholderText}
-            accessibilityLabel="ユーザープロフィール機能は今後実装予定です"
+        
+        {/* ユーザー情報カード */}
+        <View style={styles.userCard}>
+          <Text style={styles.cardTitle}>ユーザー情報</Text>
+          <Text style={styles.userName}>
+            {user?.displayName || 'ユーザー'}
+          </Text>
+          <Text style={styles.userEmail}>
+            {user?.email}
+          </Text>
+        </View>
+
+        {/* 設定カード */}
+        <View style={styles.settingsCard}>
+          <Text style={styles.cardTitle}>設定</Text>
+          <Text style={styles.featureText}>• お気に入り店舗の管理（今後実装）</Text>
+          <Text style={styles.featureText}>• 栄養目標の設定（今後実装）</Text>
+          <Text style={styles.featureText}>• アクセシビリティ設定（今後実装）</Text>
+          <Text style={styles.featureText}>• 高コントラストモード（今後実装）</Text>
+          
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={handleLogout}
+            accessibilityLabel="ログアウトボタン"
+            accessibilityHint="タップしてアプリからログアウトします"
           >
-            ユーザープロフィール機能（実装予定）
-          </Text>
-          <Text style={styles.descriptionText}>
-            今後のアップデートで以下の機能を追加予定：
-          </Text>
-          <Text style={styles.featureText}>• ユーザー認証（メール/Google）</Text>
-          <Text style={styles.featureText}>• お気に入り店舗の管理</Text>
-          <Text style={styles.featureText}>• 栄養目標の設定</Text>
-          <Text style={styles.featureText}>• アクセシビリティ設定</Text>
-          <Text style={styles.featureText}>• 高コントラストモード</Text>
+            <Text style={styles.logoutButtonText}>ログアウト</Text>
+          </TouchableOpacity>
         </View>
         
         <View style={styles.infoCard}>
@@ -57,7 +94,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     color: '#1f2937',
   },
-  placeholder: {
+  userCard: {
     backgroundColor: '#ffffff',
     padding: 24,
     borderRadius: 12,
@@ -71,17 +108,43 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  placeholderText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#374151',
-    textAlign: 'center',
+  settingsCard: {
+    backgroundColor: '#ffffff',
+    padding: 24,
+    borderRadius: 12,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  descriptionText: {
-    fontSize: 14,
+  userName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  userEmail: {
+    fontSize: 16,
     color: '#6b7280',
-    marginBottom: 12,
+    marginBottom: 4,
+  },
+  logoutButton: {
+    backgroundColor: '#ef4444',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+    minHeight: 44, // アクセシビリティのための最小タッチサイズ
+  },
+  logoutButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   featureText: {
     fontSize: 14,

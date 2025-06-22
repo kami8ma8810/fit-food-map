@@ -1,6 +1,6 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-// getAuthは後で必要になったときにインポート
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyDemoApiKey123456789",
@@ -11,10 +11,31 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:123456789012:web:abc123def456"
 };
 
-const app = initializeApp(firebaseConfig);
+// デバッグ用：設定値確認
+console.log('Firebase config loaded:', {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain,
+  hasApiKey: !!firebaseConfig.apiKey,
+});
+
+// Firebase app初期化（重複初期化を防ぐ）
+let app;
+if (getApps().length === 0) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApps()[0];
+}
 
 export const db = getFirestore(app);
-// authは後でPhase 3で実装予定
-// export const auth = getAuth(app);
+
+// 遅延Auth初期化
+export const getFirebaseAuth = () => {
+  return getAuth(app);
+};
+
+// 後方互換性のため
+export const auth = getAuth(app);
+
+console.log('Firebase initialized successfully');
 
 export default app;
